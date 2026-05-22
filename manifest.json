@@ -1,0 +1,45 @@
+
+{
+  "manifest_version": 3,
+
+  "name": "AETHERSCAN EXTENSION",
+  "version": "1.0",
+   
+  "description": "A Firefox extension that integrates nmap functionality through native messaging.",
+
+  "permissions": ["storage", "tabs", "nativeMessaging"],
+
+  "background": {
+    "scripts": ["src/background/background.js"]
+  },
+
+  "icons": {
+    "16": "assets/icons/logo-16.png",
+    "32": "assets/icons/logo-32.png",
+    "48": "assets/icons/logo-48.png",
+    "64": "assets/icons/logo-64.png",
+    "128": "assets/icons/logo-128.png",
+    "256": "assets/icons/logo-256.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "assets/icons/logo-16.png",
+      "32": "assets/icons/logo-32.png",
+      "48": "assets/icons/logo-48.png",
+      "64": "assets/icons/logo-64.png",
+      "128": "assets/icons/logo-128.png",
+      "256": "assets/icons/logo-256.png"
+    },
+    "default_popup": "src/popup/popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "nmap@niru",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  }
+}

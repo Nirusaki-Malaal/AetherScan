@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AetherScan Nmap Diagnostics</title>
+
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="app-container" id="appContainer">
+        <header class="app-header" id="appHeader">
+            <div class="brand">
+                <img src="../../assets/icons/logo.png" alt="AetherScan Logo" class="brand-icon" style="width: 40px; height: 40px;" />
+                <div class="brand-text">
+                    <h1>AETHER<span class="highlight">SCAN</span></h1>
+                    <span class="subtitle">Nmap Tactical Diagnostics v1.2</span>
+                </div>
+            </div>
+            <div class="engine-status" id="engineStatus">
+                <span class="status-indicator online"></span>
+                <span class="status-text">ENGINE ACTIVE</span>
+            </div>
+        </header>
+
+        <section class="target-bar" id="targetBar">
+            <span class="target-label">ACTIVE TAB:</span>
+            <span class="target-value" id="activeTabHost">detecting...</span>
+        </section>
+
+        <nav class="tab-navigation" id="tabNav">
+            <button class="tab-btn active" id="btn-tab-scan" data-tab="tab-scan">
+                <svg viewBox="0 0 24 24" class="tab-icon"><path d="M21 12H18M6 12H3M12 21V18M12 6V3M12 12M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Scan
+            </button>
+            <button class="tab-btn" id="btn-tab-host" data-tab="tab-host" disabled>
+                <svg viewBox="0 0 24 24" class="tab-icon"><path d="M19 21V5C19 3.89543 18.1046 3 17 3H7C5.89543 3 5 3.89543 5 5V21M12 11H12.01M12 15H12.01M12 7H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Host
+            </button>
+            <button class="tab-btn" id="btn-tab-ports" data-tab="tab-ports" disabled>
+                <svg viewBox="0 0 24 24" class="tab-icon"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Ports <span class="badge" id="ports-count">0</span>
+            </button>
+            <button class="tab-btn" id="btn-tab-history" data-tab="tab-history">
+                <svg viewBox="0 0 24 24" class="tab-icon"><path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                History
+            </button>
+            <button class="tab-btn" id="btn-tab-raw" data-tab="tab-raw" disabled>
+                <svg viewBox="0 0 24 24" class="tab-icon"><path d="M8 9L5 12L8 15M16 9L19 12L16 15M12 5L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Raw
+            </button>
+        </nav>
+
+        <main class="panel-container" id="panelContainer">
+            
+            <div class="tab-panel active" id="tab-scan">
+                <div class="panel-card scan-setup">
+                    <div class="form-group">
+                        <label for="targetInput">Target URL / IP Address</label>
+                        <div class="input-glow-wrapper">
+                            <input type="text" id="targetInput" placeholder="e.g. 192.168.1.1 or scanme.nmap.org" autocomplete="off" spellcheck="false">
+                            <button class="btn-clear" id="btnClearTarget" title="Clear input">&times;</button>
+                        </div>
+                    </div>
+
+                    <div class="presets-section">
+                        <span class="preset-label">Quick Targets:</span>
+                        <div class="preset-chips">
+                            <button class="preset-chip" data-target="scanme.nmap.org">scanme.nmap.org</button>
+                            <button class="preset-chip" data-target="127.0.0.1">localhost</button>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" id="btnExecuteScan">
+                        <span class="btn-text">INITIALIZE DIAGNOSTIC SCAN</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                </div>
+
+                <div class="radar-container hidden" id="radarContainer">
+                    <div class="radar-box">
+                        <div class="radar-circle">
+                            <div class="radar-sweep"></div>
+                            <div class="radar-pulse ring1"></div>
+                            <div class="radar-pulse ring2"></div>
+                            <div class="radar-pulse ring3"></div>
+                            <div class="radar-center"></div>
+                        </div>
+                    </div>
+                    <div class="radar-status">
+                        <h3 class="scanning-title">SCAN IN PROGRESS...</h3>
+                        <p class="scanning-target" id="scanningTarget">Target: -</p>
+                        <div class="console-box">
+                            <div class="console-logs" id="consoleLogs">
+                                <p class="log-line text-cyan">&gt; Setting up virtual sockets...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="tab-host">
+                <div class="panel-card host-card">
+                    <div class="card-header-accented">
+                        <span class="accent-line"></span>
+                        <h2>HOST SYSTEM OVERVIEW</h2>
+                    </div>
+                    <div class="host-grid">
+                        <div class="grid-item">
+                            <span class="grid-label">RESOLVED IP ADDRESS</span>
+                            <span class="grid-value monospace text-cyan" id="host-ip">-</span>
+                        </div>
+                        <div class="grid-item">
+                            <span class="grid-label">RESOLVED HOSTNAME</span>
+                            <span class="grid-value monospace" id="host-name">-</span>
+                        </div>
+                        <div class="grid-item">
+                            <span class="grid-label">DIAGNOSTIC STATUS</span>
+                            <span class="grid-value text-green" id="host-status">ACTIVE</span>
+                        </div>
+                        <div class="grid-item">
+                            <span class="grid-label">SCAN TIMESTAMP</span>
+                            <span class="grid-value" id="host-timestamp">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="tab-ports">
+                <div class="panel-card ports-card">
+                    <div class="search-filter-bar">
+                        <div class="filter-input-wrapper">
+                            <svg viewBox="0 0 24 24" class="search-icon"><path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <input type="text" id="portSearchInput" placeholder="Filter ports or services..." autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="ports-table-container">
+                        <table class="ports-table" id="portsTable">
+                            <thead>
+                                <tr>
+                                    <th>PORT</th>
+                                    <th>PROTOCOL</th>
+                                    <th>SERVICE</th>
+                                    <th>VERSION</th>
+                                    <th>STATE</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portsTableBody">
+                            </tbody>
+                        </table>
+                        <div class="empty-state hidden" id="portsEmptyState">
+                            <svg viewBox="0 0 24 24" class="empty-icon"><path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <p>No matches found in standard definitions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="tab-history">
+                <div class="panel-card history-card">
+                    <div class="card-header-accented">
+                        <span class="accent-line"></span>
+                        <h2>PREVIOUS DIAGNOSTIC RUNS</h2>
+                        <button class="btn-clear-history" id="btnClearHistory">Clear All</button>
+                    </div>
+                    <div class="history-list" id="historyList">
+                    </div>
+                    <div class="history-empty" id="historyEmpty">
+                        <p>No historical scans logged on this system.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="tab-raw">
+                <div class="panel-card raw-card">
+                    <div class="raw-actions">
+                        <span class="raw-title">JSON DIAGNOSTIC REPORT</span>
+                        <button class="btn-copy" id="btnCopyRaw">
+                            <svg viewBox="0 0 24 24" class="copy-icon"><path d="M8 5H6C4.89543 5 4 5.89543 4 7V19C4 20.1046 4.89543 21 6 21H16C17.1046 21 18 20.1046 18 19V17M8 5H6C4.89543 5 4 5.89543 4 7V19C4 20.1046 4.89543 21 6 21H16C17.1046 21 18 20.1046 18 19V17M8 5C8 6.10457 8.89543 7 10 7H14C15.1046 7 16 6.10457 16 5M8 5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5M16 11H12M16 15H10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span>COPY REPORT</span>
+                        </button>
+                    </div>
+                    <div class="raw-console">
+                        <pre><code class="monospace text-green" id="rawJsonOutput">{}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <div class="toast-notification hidden" id="toast">
+            <span class="toast-message" id="toastMessage">Success</span>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
