@@ -95,3 +95,5 @@ zip -r aetherscan.xpi manifest.json src/ assets/
 ```
 
 This creates the final `aetherscan.xpi` file containing only the core files needed by the browser.
+
+**Note : AI Has Been Used only For UI generation .css file And some bug fixes**
