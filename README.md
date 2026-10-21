@@ -1,99 +1,65 @@
-# AetherScan Nmap Diagnostics Extension
+<p align="center">
+  <img src="assets/logo.svg" alt="AetherScan Logo" width="540">
+</p>
 
-AetherScan is a professional-grade Firefox extension designed to run tactical network diagnostics and port scans directly from your browser. It uses Native Messaging to connect to a local Python daemon, executing Nmap scans securely and rendering high-fidelity reports.
+# AetherScan
 
----
+Firefox WebExtension and native messaging daemon for executing, parsing, and inspecting Nmap network scans directly from the browser.
 
-## Key Features
+## Architecture
 
-- Tactical HUD Design: Fully styled dark theme with visual grid overlays and double-stitched technical layouts.
-- Animated Sonar Scanning: A revolving radar scanner sweep that displays concentric sonar waves and live diagnostic command feeds.
-- Host Telemetry Matrix: Grid panel summarizing host IP addresses, resolved names, and active scan timestamps.
-- Active Ports Telemetry: Searchable, high-contrast ports table displaying port numbers, protocols, services, versions, and active state badges.
-- Raw JSON reports: Clean, scrollable preformatted telemetry report with a click-to-copy utility.
-- Diagnostic History Logs: Automatically stores previous diagnostic runs locally, with options to reload cached scans or wipe the log databases.
+* **WebExtension Popup (`src/popup/`)**: Browser interface managing target input, scan profile selection, active port telemetry filtering, and raw JSON export.
+* **Background Worker (`src/background/`)**: Manages browser-to-native message lifecycle using the WebExtension `runtime.sendNativeMessage` API.
+* **Native Host (`host.py`)**: Python messaging daemon that receives 4-byte little-endian length-prefixed commands over `stdin`, executes `nmap`, parses XML diagnostic trees using `xmltodict`, and streams structured JSON to `stdout`.
 
----
+## System Flow
 
-## Technical Architecture
-
-The extension is structured into three main layers:
-
-1. Frontend Interface (src/popup):
-   - popup.html: Contains the tabbed UI structure.
-   - popup.css: Futuristic cyber security styles.
-   - popup.js: Handles active tab switching, triggers search filters, manages local storage, and handles background worker events.
-
-2. Background Script (src/background/background.js):
-   - Bridges communication between the extension UI and the native operating system messaging host using Firefox API queries.
-
-3. Native Messaging Host (host.py):
-   - A lightweight Python daemon that reads input targets from stdin, triggers the local Nmap executable, parses XML output into a clean JSON payload, and writes the response back to stdout.
-
----
+```text
+[Popup UI] ──> [Background Worker] ──> [Native Messaging Host] ──> [Nmap Binary]
+                                                    │
+[Port Table] <── [JSON Telemetry] <─────────────────┘
+```
 
 ## Prerequisites
 
-To run AetherScan on your system, you need:
+* Firefox Browser
+* Nmap on system `PATH`
+* Python 3.8+
+* `xmltodict` (`pip install xmltodict`)
 
-1. Nmap Security Scanner (installed and available on your system path).
-2. Python 3 (installed on your system).
-3. The Python 'xmltodict' module.
-4. Firefox Browser.
+## Installation
 
----
+### Linux
 
-## Quick Installation
-
-### 1. Linux Setup
-
-Run the included shell installer script:
+Register the native messaging host manifest:
 
 ```bash
-chmod +x install.sh
+chmod +x install.sh host.py
 ./install.sh
 ```
 
-The script will automatically check Python dependencies, ensure Nmap is installed, make the host.py daemon executable, register the native messaging manifest, and package the extension into an .xpi archive.
+Load the extension in Firefox:
+1. Navigate to `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on**.
+3. Select `manifest.json` from the repository root.
 
-### 2. Windows Setup
+### Windows
 
-Run the included batch installer script:
+Execute the batch configuration script from an elevated command prompt:
 
 ```cmd
 install.bat
 ```
 
----
+## Scan Profiles
 
-## Loading the Extension in Firefox
+| Profile | Nmap Arguments | Scope |
+| :--- | :--- | :--- |
+| Quick Scan | `-F -T4` | Top 100 common ports |
+| Regular Scan | `-T4` | Top 1000 standard ports |
+| Service Detection | `-sV -T4` | Service versions and banners |
+| Comprehensive | `-sV -sC -O -T4` | Scripts, OS detection, service versions |
 
-### Loading Temporarily (For Developers)
+## License
 
-1. Open Firefox and type `about:debugging` in the URL bar.
-2. Click "This Firefox" in the left sidebar.
-3. Click "Load Temporary Add-on...".
-4. Select the `aetherscan.xpi` package or `manifest.json` file in this directory.
-
-The AetherScan brand icon will appear in your extension menu.
-
-### Loading Permanently
-
-1. Pack the extension by zipping the core assets (see section below).
-2. Submit your packaged `.xpi` file for self-distribution at the Firefox Developer Hub (addons.mozilla.org).
-3. Download the signed extension package once Mozilla completes validation.
-4. Go to `about:addons` in Firefox, click the gear icon, select "Install Add-on From File", and select the signed package.
-
----
-
-## Manual Packaging (Rebuilding .xpi)
-
-To manually package the extension into a single redistributable package, run the following zip command in this directory:
-
-```bash
-zip -r aetherscan.xpi manifest.json src/ assets/
-```
-
-This creates the final `aetherscan.xpi` file containing only the core files needed by the browser.
-
-**Note : AI Has Been Used only For UI generation .css file And some bug fixes**
+GPL-3.0-or-later. See LICENSE for details.
